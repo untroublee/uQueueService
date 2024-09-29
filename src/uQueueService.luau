@@ -217,12 +217,14 @@ end
 
 -- Returns a Queue based on its ID optionally given in the QueueParams parameter of .new()
 function QueueService:GetQueueById(id:string | number)
+	local toReturn = nil
 	for i, queue in pairs(QueueCache) do
 		if queue["id"] == id then
-			return queue 
+			toReturn = queue 
 		end
-		return nil
 	end
+	
+	return toReturn
 end
 
 -- Queue Obj Methods --
@@ -280,7 +282,7 @@ function Queue:Initiate()
 			toReturn = true
 		end
 	end
-	
+
 	if toReturn then
 		self.Initiated:Fire()
 	end
