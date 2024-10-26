@@ -9,4 +9,4 @@ I have provided you the source code for only uQueueService in GitHub. This modul
 
 See the [docs](https://github.com/untroublee/uQueueService/wiki) for more info
 
-> Module Version: v0.6
+> Module Version: v0.7
