@@ -25,7 +25,7 @@ local defaultData = {
 		Players = 1
 	},
 	PlayerAmt = 1
-} --Edit this to test your game p65lace with custom teleport data
+} --Edit this to test your game place with custom teleport data
 
 local queueNum = 0
 
@@ -66,7 +66,7 @@ end
 local function getQueueFromUniqueId(id:(string|number), cache:{})
 	local toReturn = nil
 	for i, queue in pairs(cache) do
-		if queue["_uniqueId"][1] == string.sub(id,2) then
+		if queue["_uniqueId"][1] == id then
 			toReturn = queue
 		end
 	end
@@ -120,15 +120,17 @@ function QueueService.new(queueParams:Types.QueueParams)
 	newJanitor:Add(QueueObj.CountTick,"Destroy")
 
 	if QueueObj.maxPlayers == nil then
-		warn("Maximum players not provided. Defaulting to inf")
-		QueueObj.maxPlayers = 100 -- Not actually infinite lol!
+		warn("Maximum players not provided. Defaulting to 50")
+		QueueObj.maxPlayers = 50
 	end
 	if QueueObj.countdown == nil then
 		warn("Countdown time not provided. Defaulting to 5 seconds")
 		QueueObj.countdown = 5
 	end
-
-	assert(QueueObj.minPlayers,"Need to provide minimum amount of players!")
+	if QueueObj.minPlayers == nil then
+		warn("Minimum players not provided. Defaulting to 1")
+		QueueObj.minPlayers = 1
+	end
 
 	local left = Plrs.PlayerRemoving:Connect(function(plr)
 		local index = table.find(QueueObj.queued,plr)
@@ -204,6 +206,7 @@ function QueueService:GetTeleportData()
 	if key ~= "" then 
 		tpData = getFromHashMemory(TpDataStore,key)
 	else
+		warn("Server not created from a queue. Using default data (Edit in uQueueService module)")
 		tpData = defaultData -- This is just used for testing your game
 	end
 
