@@ -91,6 +91,7 @@ local QueueCache = {}
 -- Creates a new Queue object.
 function QueueService.new(queueParams:Types.QueueParams)
 	queueNum += 1
+	local newJanitor = Janitor.new()
 
 	local QueueObj = {
 		PlayerAdded = Signal.new(),
@@ -109,15 +110,15 @@ function QueueService.new(queueParams:Types.QueueParams)
 
 
 		_uniqueId = {numToHex(queueNum)},
+		_janitor = newJanitor
 	}
 
 	table.freeze(QueueObj._uniqueId)
 	
-	local newJanitor = Janitor.new()
-	newJanitor:Add(QueueObj.PlayerAdded,"Destroy")
-	newJanitor:Add(QueueObj.PlayerRemoved,"Destroy")
-	newJanitor:Add(QueueObj.Initiated,"Destroy")
-	newJanitor:Add(QueueObj.CountTick,"Destroy")
+	QueueObj._janitor:Add(QueueObj.PlayerAdded,"Destroy")
+	QueueObj._janitor:Add(QueueObj.PlayerRemoved,"Destroy")
+	QueueObj._janitor:Add(QueueObj.Initiated,"Destroy")
+	QueueObj._janitor:Add(QueueObj.CountTick,"Destroy")
 
 	if QueueObj.maxPlayers == nil then
 		warn("Maximum players not provided. Defaulting to 50")
@@ -226,7 +227,7 @@ function QueueService:GetQueueById(id:string | number)
 			toReturn = queue 
 		end
 	end
-	
+
 	return toReturn
 end
 
@@ -294,7 +295,7 @@ end
 
 -- Destroys the queue
 function Queue:Destroy()
-	newJanitor:Cleanup()
+	self._janitor:Cleanup()
 
 	table.remove(QueueCache,table.find(QueueCache,getQueueFromUniqueId(self._uniqueId,QueueCache)))
 	setmetatable(self,nil)
