@@ -7,6 +7,7 @@ local MSS = game:GetService("MemoryStoreService")
 --Modules--
 local Janitor = require(script:WaitForChild("Janitor"))
 local Signal = require(script:WaitForChild("Signal"))
+local Retry = require(script:WaitForChild("Retry"))
 
 --Private--
 export type QueueParams = {
@@ -37,16 +38,9 @@ local tpOptions = Instance.new("TeleportOptions")
 tpOptions.ShouldReserveServer = true
 
 local function getFromHashMemory(MemoryStore:MemoryStoreHashMap, key, retries)
-	if retries == nil then retries = 3 end
-	local success, response
-	local count = 0
-	while not success and count < retries do
-		success, response = pcall(MemoryStore:GetAsync(),key)
-		count += 1
-		if not success then task.wait(3) end
-	end
-	if not success then warn(response) end
-	return response
+	return Retry(3,1,function()
+		MemoryStore:GetAsync(key)
+	end)
 end
 
 local function teleportQueue(queue,placeId,tpData)
@@ -114,7 +108,7 @@ function QueueService.new(queueParams:Types.QueueParams)
 	}
 
 	table.freeze(QueueObj._uniqueId)
-	
+
 	QueueObj._janitor:Add(QueueObj.PlayerAdded,"Destroy")
 	QueueObj._janitor:Add(QueueObj.PlayerRemoved,"Destroy")
 	QueueObj._janitor:Add(QueueObj.Initiated,"Destroy")
