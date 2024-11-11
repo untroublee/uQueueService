@@ -19,19 +19,18 @@ export type QueueParams = {
 }
 
 local defaultData = {
-	Params = {
-		Map = "Baseplate",
-		Rounds = 3,
-		Players = 1
+	params = {
+		map = "Baseplate",
+		rounds = 3,
+		players = 1
 	},
-	PlayerAmt = 1
+	PlayerAmt = 1 -- Don't remove this line. You can edit the value based on how many players you test with
 } --Edit this to test your game place with custom teleport data
 
 local queueNum = 0
 
 local TpDataStore = MSS:GetHashMap("TpData")
 
-local newJanitor = Janitor.new()
 local IsGamePlace = script:GetAttribute("IsGamePlace")
 
 local tpOptions = Instance.new("TeleportOptions")
@@ -113,7 +112,8 @@ function QueueService.new(queueParams:Types.QueueParams)
 	}
 
 	table.freeze(QueueObj._uniqueId)
-
+	
+	local newJanitor = Janitor.new()
 	newJanitor:Add(QueueObj.PlayerAdded,"Destroy")
 	newJanitor:Add(QueueObj.PlayerRemoved,"Destroy")
 	newJanitor:Add(QueueObj.Initiated,"Destroy")
